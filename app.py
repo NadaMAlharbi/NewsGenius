@@ -5,7 +5,6 @@ from highlighting import normalize_sentence, generate_distinct_colors, highlight
 from langchain_utils import extract_key_info, generate_summary, translate_to_arabic, match_summary_with_article
 from scrapegraphai.graphs import SmartScraperGraph
 from concurrent.futures import ThreadPoolExecutor  # لاستدعاء الخيوط المتعددة
-from app import app
 import os  # لاستخدام عدد الأنوية المتاحة
 import re  # لاستخدام التعبيرات المنتظمة لتنظيف النص
 
