@@ -1,0 +1,94 @@
+/* styles.css */
+
+body {
+    background-color: #000000;
+}
+
+.rtl {
+    direction: rtl;
+    text-align: right;
+    font-family: Arial, sans-serif;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.title {
+    font-size: 60px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+    background: linear-gradient(to bottom, white, gray);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+
+.subtitle {
+    font-size: 20px;
+    text-align: center;
+    background: linear-gradient(to bottom, white, gray);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+
+.center {
+    text-align: center;
+}
+
+.logo {
+    width: 10%;
+    max-width: 300px;
+}
+
+.article-box {
+    background-color: #F0F0F0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* Custom button style */
+.stButton {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.stButton>button {
+    background: #FF4742;
+    border: 1px solid #FF4742;
+    border-radius: 6px;
+    box-shadow: rgba(0, 0, 0, 0.1) 1px 2px 4px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font-family: nunito,roboto,proxima-nova,"proxima nova",sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 16px;
+    min-height: 40px;
+    outline: 0;
+    padding: 12px 14px;
+    text-align: center;
+    text-rendering: geometricprecision;
+    text-transform: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: middle;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.stButton>button:hover,
+.stButton>button:active {
+    background-color: initial;
+    background-position: 0 0;
+    color: #FF4742;
+}
+
+.stButton>button:active {
+    opacity: 0.5;
+}
+
