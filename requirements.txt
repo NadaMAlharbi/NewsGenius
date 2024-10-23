@@ -63,7 +63,8 @@ jsonpatch==1.33
 jsonpointer==3.0.0
 jsonschema==4.23.0
 jsonschema-specifications==2024.10.1
-langchain==0.3.3
+lang==0.1
+langchain==0.3.4
 langchain-aws==0.2.2
 langchain-community==0.3.2
 langchain-core==0.3.12
@@ -157,4 +158,3 @@ urllib3==2.2.3
 uvicorn==0.22.0
 Werkzeug==3.0.4
 yarl==1.15.2
-
