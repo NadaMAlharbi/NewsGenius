@@ -9,27 +9,29 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA
 import os
 import json
+from langsmith import traceable
 
 
 # إعداد مفتاح OpenAI
 os.environ["OPENAI_API_KEY"] = "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"
+os.environ["LANGCHAIN_API_KEY"] = "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"
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_PROJECT"] = "Nada_2"
 
 # Initialize LLM once for reuse
 llm = ChatOpenAI(temperature=0, model_name="gpt-4o-mini")
 
 
 def create_vectorstore(text: str) -> FAISS:
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=100)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     texts = text_splitter.split_text(text)
     embeddings = OpenAIEmbeddings()
     return FAISS.from_texts(texts, embeddings)
 
 
-# تعديل دالة extract_key_info للتعامل مع النص فقط
-def extract_key_info(input_data: str) -> dict:
-    article_text = input_data
-
-    vectorstore = create_vectorstore(article_text)
+@traceable
+def extract_key_info(article: str) -> dict:
+    vectorstore = create_vectorstore(article)
     retriever = vectorstore.as_retriever()
 
     qa_chain = RetrievalQA.from_chain_type(
@@ -41,13 +43,13 @@ def extract_key_info(input_data: str) -> dict:
     questions = [
         "What are the main technical concepts discussed in this article?",
         "What are the key findings or advancements mentioned?",
-        "Are there any specific companies or researchers mentioned?",
         "What potential impacts or applications are discussed?"
-    ]
+        ]
 
     return {question: qa_chain.run(question) for question in questions}
 
 
+@traceable
 def generate_summary(article: str, key_info: dict) -> str:
     prompt = ChatPromptTemplate.from_messages([
         SystemMessage(
@@ -77,17 +79,16 @@ Format your response as follows:
 The summary should be natural and flowing without using bullet points or headers.
 """)
     ])
-    llm_s = ChatOpenAI(model_name="ft:gpt-4o-mini-2024-07-18:personal:summary3:AHmKWopu",max_tokens=230)
+    llm_s = ChatOpenAI(model_name="ft:gpt-4o-mini-2024-07-18:personal:summary3:AHmKWopu")
     chain = LLMChain(llm=llm_s, prompt=prompt)
     return chain.run(article=article, key_info=str(key_info))
 
-
+@traceable
 def translate_to_arabic(text: str) -> str:
     prompt_s = ChatPromptTemplate.from_messages([
         SystemMessage(
             content="You are an expert translator specializing in technical translations from English to Arabic. Your task is to provide an accurate and fluent translation that preserves the technical nuances and structure of the original text."),
-        HumanMessagePromptTemplate.from_template("""
-Based on this summary: {text}, translate the following text to Arabic following these strict guidelines:
+        HumanMessagePromptTemplate.from_template(""" {text}, translate the following text to Arabic following these strict guidelines:
 
 1. **Start with what was done**: Translate the first sentence to describe what the company, government, or organization did (e.g., announced, developed, issued, approved, etc.).
 2. **State the goal**: In the second sentence, explicitly mention the goal or purpose behind this action.
@@ -119,7 +120,7 @@ def clean_json_output(output):
         return json_match.group(0)  # Extract the JSON array
     return output
 
-
+@traceable
 def match_summary_with_article(article: str, summary: str) -> str:
     prompt = ChatPromptTemplate.from_messages([
         SystemMessage(
