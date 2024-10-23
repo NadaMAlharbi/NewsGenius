@@ -81,17 +81,23 @@ def process_input(input_data: str, input_type: str) -> tuple:
         # إرسال المهام بشكل متوازي للتنفيذ
         key_info_future = executor.submit(extract_key_info, cleaned_text)
         summary_future = executor.submit(generate_summary, cleaned_text, key_info_future.result())
+
+        # تشغيل الترجمة والمطابقة بالتوازي مع توليد الملخص
         arabic_summary_future = executor.submit(translate_to_arabic, summary_future.result())
+        match_sentences_future = executor.submit(match_summary_with_article, cleaned_text, summary_future.result())
 
         # استرجاع النتائج بعد انتهاء المهام
         key_info = key_info_future.result()
         summary = summary_future.result()
         arabic_summary = arabic_summary_future.result()
+        matched_sentences = match_sentences_future.result()
 
-    # قياس الزمن لدالة match_summary_with_article
-    start_time = time.time()
-    matched_sentences = match_summary_with_article(cleaned_text, summary)
-    print(f"Time taken for match_summary_with_article: {time.time() - start_time} seconds")
+    # تعديل النصوص لتصبح متوافقة مع HTML
+    arabic_summary = arabic_summary.replace('\n', '<br>')
+    summary = summary.replace('\n', '<br>')
+
+    # تمييز المقالة والخلاصة
+    highlighted_summary, highlighted_article = highlight_summary_and_article(cleaned_text, summary, matched_sentences)
 
     return arabic_summary, summary, cleaned_text, matched_sentences
 
@@ -151,4 +157,4 @@ def index():
 
 # تشغيل التطبيق
 if __name__ == "__main__":
-    app.run(debug=True, port=5009)
+    app.run(debug=True, port=5001)
