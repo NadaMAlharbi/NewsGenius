@@ -53,17 +53,21 @@ def process_input(input_data: str, input_type: str) -> tuple:
             config=graph_config
         )
 
-        start_time = time.time()  # قياس زمن تشغيل SmartScraperGraph
-        result = smart_scraper_graph.run()
-        print(f"Time taken for SmartScraperGraph: {time.time() - start_time} seconds")
+        try:
+            start_time = time.time()  # قياس زمن تشغيل SmartScraperGraph
+            result = smart_scraper_graph.run()
+            print(f"Time taken for SmartScraperGraph: {time.time() - start_time} seconds")
 
-        # استخراج الحقول المطلوبة من JSON (الـ Title و Content مثلاً)
-        if result and "Content" in result:
-            extracted_text = result["Content"]  # استخراج المحتوى كـنص
-            title = result.get("Title", "")  # استخراج العنوان إذا كان متاحاً
-            extracted_text = f"{title}\n\n{extracted_text}"  # دمج العنوان والمحتوى كنص مع سطر جديد بينهما
-        else:
-            extracted_text = ""  # إذا لم يتم العثور على محتوى
+            if result and "Content" in result:
+                extracted_text = result["Content"]  # استخراج المحتوى كـنص
+                title = result.get("Title", "")  # استخراج العنوان إذا كان متاحاً
+                extracted_text = f"{title}\n\n{extracted_text}"  # دمج العنوان والمحتوى كنص مع سطر جديد بينهما
+            else:
+                extracted_text = ""  # إذا لم يتم العثور على محتوى
+
+        except Exception as e:
+            print(f"Error with SmartScraperGraph: {e}")
+            extracted_text = ""  # Handle any errors from the scraper gracefully
 
     else:
         # إذا كان المدخل نصًا، نستخدمه مباشرة
