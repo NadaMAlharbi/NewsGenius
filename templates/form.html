@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Automation of Newsletter</title>
+    <title>NewsGenius</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -31,11 +31,11 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            width: 230px;
+            width: 250px;
         }
 
         .form-container {
-            max-width: 600px;
+            max-width: 90%;
             width: 100%;
             text-align: center;
             margin: 0 auto;
@@ -45,75 +45,179 @@
             justify-content: center;
             align-items: center;
             gap: 20px;
+            padding-top: 120px;
         }
 
         .title {
-            font-size: 35px;
+            font-size: 80px;
             font-weight: bold;
             margin-bottom: 20px;
+            margin-top: -50px;
             color: #fff;
+            position: relative;
         }
 
         .btn-custom {
             background-color: #28a745;
             color: white;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
             border-radius: 15px;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            width: 150px;
-            margin-top: 20px;
+            width: 200px;
+            margin-top: 55px;
         }
 
         .btn-custom:hover {
             background-color: #218838;
         }
 
-        .form-control {
-            border-radius: 15px;
+        /* توحيد حجم مربعات الإدخال */
+        .form-input {
             font-size: 16px;
-            padding: 15px;
+            padding: 10px;
             width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            text-align: center;
-            border: 2px solid #ccc;
+            height: 45px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
         }
 
+        /* التحكم بحجم مربعي email و password */
+        #email, #password {
+            width: 250px;  /* العرض */
+            height: 45px;  /* الطول */
+        }
+
+        h5 {
+            color: green;
+            font-size: 19px;
+            font-weight: bold;
+        }
+
+        /* تخصيص حجم خط تسميات Email و Password */
+        label.form-label {
+            font-size: 18px; /* التحكم في حجم الخط هنا */
+        }
+
+        /* ضبط المحاذاة والتنسيق في صفحة login */
+        .modal-body {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* لضبط المحاذاة لليسار */
+        }
+
+        .mb-3-login {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 15px; /* المسافة بين التسمية والحقل */
+        }
+
+        label {
+            min-width: 100px; /* لضمان عرض موحد للتسميات */
+            text-align: left; /* محاذاة النص داخل التسمية لليسار */
+        }
+
+        /* إعادة المحاذاة الأصلية لأزرار URL و Article */
         .mb-3 {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 20px;
+            gap: 50px;
             margin-bottom: 30px;
+            transition: all 0.3s ease;
         }
 
-        .input-article, .input-url {
-            height: auto;
-            width: 100%;
-            min-height: 150px;
-            max-height: 300px;
-            overflow-y: scroll;
+        /* التحكم بحجم مربع النص للمقال */
+        .input-article textarea {
+            font-size: 25px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 600px;
+            min-height: 300px;
+            max-height: 350px;
+            overflow-y: auto;
+            border-radius: 15px;
+            border: 2px solid #ccc;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
-        label {
-            font-size: 18px;
-            color: black;
+        /* التحكم بحجم مربع الرابط */
+        .input-url {
+            font-size: 25px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 600px;
+            height: 60px;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
-        /* Spinner */
+        input[type="radio"] {
+            margin-right: -22px;
+        }
+
+        input[type="radio"] + label {
+            font-size: 30px;
+            font-weight: 550;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        /* تنبيه */
+        #login-hint {
+            display: none;
+            position: absolute;
+            background-color: gray;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            width: 200px;
+            height: 40px;
+            z-index: 1000;
+        }
+
+        #login-hint::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            right: 20px;
+            margin-left: -10px;
+            width: 0;
+            height: 0;
+            border-width: 10px;
+            border-style: solid;
+            border-color: gray transparent transparent transparent;
+        }
+
+        /* Spinner - حلقة واحدة */
         #loading-spinner {
             display: none;
             width: 48px;
             height: 48px;
-            border: 6px solid rgba(0, 0, 0, 0.2); /* لون رمادي فاتح */
-            border-top-color: rgba(100, 100, 100, 1); /* لون رمادي غامق */
+            border: 6px solid rgba(0, 0, 0, 0.1); /* لون الخلفية للحلقة */
+            border-top-color: #28a745; /* لون الجزء العلوي للحلقة */
             border-radius: 50%;
             animation: spin 1s infinite linear;
-            margin-top: 20px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
         }
 
         @keyframes spin {
@@ -121,46 +225,137 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* تعديل لتوسيط الـ spinner */
-        .spinner-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            margin-top: 20px;
+        /* زر تسجيل الدخول */
+        .login-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px 20px;
+            background-color: gray;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
         }
+
+        /* التحكم بحجم وتوسيط نافذة تسجيل الدخول */
+        .modal-dialog {
+            max-width: 400px;
+            margin: 30vh auto;
+        }
+
+        .modal-body {
+            padding: 15px;
+        }
+
+        /* تخصيص الزر الأساسي بلون أخضر */
+        .btn-primary {
+            color: #fff;
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        .btn-primary:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+        /* تخصيص رسائل الخطأ */
+        .text-danger {
+            text-align: center; /* جعل النص في المنتصف */
+            font-size: 16px; /* حجم الخط */
+            margin-top: 10px; /* المسافة فوق النص */
+            margin-bottom: 10px; /* المسافة تحت النص */
+        }
+
+        /* التحكم في رسالة "Please enter a valid URL" */
+        #url-error {
+            font-size: 22px; /* حجم الخط */
+            margin-top: 20px; /* المسافة من الأعلى */
+            margin-bottom: 10px; /* المسافة من الأسفل */
+        }
+
+        /* التحكم في رسالة "Please enter valid text, not a URL" */
+        #article-error {
+            font-size: 22px; /* حجم الخط */
+            margin-top: 20px; /* المسافة من الأعلى */
+            margin-bottom: 10px; /* المسافة من الأسفل */
+        }
+
     </style>
 </head>
 <body>
 
     <img src="{{ url_for('static', filename='logo.png') }}" alt="SDAIA Logo" class="logo">
 
+    <!-- زر تسجيل الدخول -->
+    <button class="login-button" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+
     <div class="form-container">
         <h1 class="title">NewsGenius</h1>
-        <form action="/" method="POST" onsubmit="showSpinner()">
+        <form action="/" method="POST" onsubmit="validateInput(event)">
             <div class="mb-3">
                 <input type="radio" id="input-smart-scraper" name="input_type" value="smart_scraper" checked onclick="toggleInput('smart_scraper')">
-                <label for="input-smart-scraper">URL</label>
+                <label for="input-smart_scraper">URL</label>
 
                 <input type="radio" id="input-text" name="input_type" value="text" onclick="toggleInput('text')">
                 <label for="input-text">Article</label>
             </div>
 
+            <!-- مربع النص للمقال -->
             <div class="mb-3 input-article" id="article-input" style="display: none;">
-                <textarea name="article" id="article" class="form-control" rows="6" placeholder="Paste the full article to analyze the newsletter"></textarea>
+                <textarea name="article" id="article" class="form-input" placeholder="Paste the full article to analyze the newsletter"></textarea>
+                <div id="article-error" class="text-danger" style="display: none;">Please enter valid text, not a URL</div>
             </div>
 
+            <!-- مربع النص للرابط -->
             <div class="mb-3 input-url" id="url-input">
-                <input type="text" name="article_url" id="article_url" class="form-control" placeholder="Paste the URL to analyze the newsletter">
+                <input type="text" name="article_url" id="article_url" class="form-input input-url" placeholder="Paste the URL to analyze the newsletter">
+                <div id="url-error" class="text-danger" style="display: none;">Please enter a valid URL</div>
             </div>
+
+            <!-- تنبيه الفقاعة -->
+            <div id="login-hint">Please login first to analyze</div>
 
             <button type="submit" class="btn btn-custom">Analyze</button>
 
-            <!-- Spinner يظهر أسفل الزر أثناء التحميل -->
-            <div class="spinner-container">
-                <div id="loading-spinner"></div>
+            <!-- Spinner -->
+            <div id="loading-spinner">
+                <!-- حلقة واحدة -->
             </div>
         </form>
+    </div>
+
+    <!-- Modal نافذة تسجيل الدخول -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">Login</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="loginForm">
+                <div class="mb-3-login">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-input" id="email" placeholder="Enter email" required>
+                </div>
+                <div class="mb-3-login">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-input" id="password" placeholder="Enter password" required>
+                </div>
+                <!-- رسالة الخطأ -->
+                <div id="login-error" class="text-danger" style="display:none;">Invalid email or password</div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="login()">Login</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -175,14 +370,95 @@
         }
 
         window.onload = function() {
+            // إخفاء الـ Spinner عند تحميل الصفحة
+            document.getElementById('loading-spinner').style.display = 'none';
+
+            // عرض المدخل الافتراضي (URL أو النص)
             toggleInput('smart_scraper');
+
+            // تفريغ الحقول عند العودة إلى الصفحة
+            document.getElementById('article').value = '';
+            document.getElementById('article_url').value = '';
         };
 
-        // إظهار الـ Spinner عند النقر على زر "Analyze"
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (email === 'NewsGenius@gmail.com' && password === 'NewsGenius@2024@') {
+                localStorage.setItem('loggedIn', 'true');
+                alert('Logged in successfully!');
+                location.reload();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        function checkLogin(event) {
+            const loggedIn = localStorage.getItem('loggedIn');
+            if (!loggedIn) {
+                event.preventDefault();
+                const hint = document.getElementById('login-hint');
+                const submitButton = document.querySelector('.btn-custom');
+                const buttonRect = submitButton.getBoundingClientRect();
+
+                hint.style.top = (buttonRect.top - 60) + 'px';
+                hint.style.left = (buttonRect.left + buttonRect.width - 220) + 'px';
+                hint.style.display = 'block';
+
+                setTimeout(() => {
+                    hint.style.display = 'none';
+                }, 2000);
+            }
+        }
+
         function showSpinner() {
             document.getElementById('loading-spinner').style.display = 'block';
         }
+
+        // دالة لإظهار رسالة الخطأ لفترة معينة
+        function showErrorMessage(elementId, duration = 3000) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.style.display = 'block'; // إظهار الرسالة
+
+            // إخفاء الرسالة بعد الفترة المحددة
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, duration);
+        }
+
+        function validateInput(event) {
+            const articleInput = document.getElementById('article').value.trim();
+            const urlInput = document.getElementById('article_url').value.trim();
+            const inputType = document.querySelector('input[name="input_type"]:checked').value;
+
+            // تعبير منتظم للتحقق من أن الرابط صحيح
+            const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/;
+
+            // إخفاء رسائل الخطأ أولاً
+            document.getElementById('article-error').style.display = 'none';
+            document.getElementById('url-error').style.display = 'none';
+
+            // تحقق من الإدخال في حالة اختيار "URL" ولكن الإدخال ليس رابطًا صحيحًا
+            if (inputType === 'smart_scraper' && (urlInput === '' || !urlRegex.test(urlInput))) {
+                showErrorMessage('url-error', 3000); // إظهار الرسالة لمدة 3 ثوانٍ
+                event.preventDefault();
+                return false;
+            }
+
+            // تحقق من الإدخال في حالة اختيار "Article" ولكن الإدخال هو رابط
+            if (inputType === 'text' && urlRegex.test(articleInput)) {
+                showErrorMessage('article-error', 3000); // إظهار الرسالة لمدة 3 ثوانٍ
+                event.preventDefault();
+                return false;
+            }
+
+            // إذا كان الإدخال صحيحًا، قم بعرض الـ Spinner
+            showSpinner();
+        }
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
