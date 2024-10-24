@@ -1,4 +1,4 @@
-import re  # لتنظيف النص باستخدام تعبيرات منتظمة
+import re  # To clean text using regular expressions
 from langchain_community.chat_models import ChatOpenAI
 from langchain_core.prompts.chat import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.chains import LLMChain
@@ -11,8 +11,7 @@ import os
 import json
 from langsmith import traceable
 
-
-# إعداد مفتاح OpenAI
+# Setting up OpenAI API key
 os.environ["OPENAI_API_KEY"] = "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"
 os.environ["LANGCHAIN_API_KEY"] = "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"
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
@@ -21,15 +20,15 @@ os.environ["LANGCHAIN_PROJECT"] = "Nada_2"
 # Initialize LLM once for reuse
 llm = ChatOpenAI(temperature=0, model_name="gpt-4o-mini")
 
-
+# Function to create a vector store using FAISS
 def create_vectorstore(text: str) -> FAISS:
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     texts = text_splitter.split_text(text)
     embeddings = OpenAIEmbeddings()
     return FAISS.from_texts(texts, embeddings)
 
-
 @traceable
+# Function to extract key information from the article
 def extract_key_info(article: str) -> dict:
     vectorstore = create_vectorstore(article)
     retriever = vectorstore.as_retriever()
@@ -48,8 +47,8 @@ def extract_key_info(article: str) -> dict:
 
     return {question: qa_chain.run(question) for question in questions}
 
-
 @traceable
+# Function to generate a structured summary from the article and key information
 def generate_summary(article: str, key_info: dict) -> str:
     prompt = ChatPromptTemplate.from_messages([
         SystemMessage(
@@ -84,6 +83,7 @@ The summary should be natural and flowing without using bullet points or headers
     return chain.run(article=article, key_info=str(key_info))
 
 @traceable
+# Function to translate text to Arabic
 def translate_to_arabic(text: str) -> str:
     prompt_s = ChatPromptTemplate.from_messages([
         SystemMessage(
@@ -113,7 +113,7 @@ The translation should flow naturally as a cohesive paragraph, without using hea
     chain = LLMChain(llm=Fine_tunes_llm, prompt=prompt_s)
     return chain.run(text=text)
 
-
+# Function to clean JSON output from LLM results
 def clean_json_output(output):
     json_match = re.search(r'\[\s*{.*?}\s*\]', output, re.DOTALL)
     if json_match:
@@ -121,6 +121,7 @@ def clean_json_output(output):
     return output
 
 @traceable
+# Function to match summary sentences with corresponding article sentences
 def match_summary_with_article(article: str, summary: str) -> str:
     prompt = ChatPromptTemplate.from_messages([
         SystemMessage(
