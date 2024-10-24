@@ -129,7 +129,6 @@ rpds-py==0.20.0
 rsa==4.9
 s3transfer==0.10.3
 safetensors==0.4.5
-scrapegraphai==1.26.7
 semchunk==2.2.0
 sentencepiece==0.2.0
 simpleeval==1.0.0
