@@ -1,112 +1,91 @@
 from flask import Flask, render_template, request
 import json
-import time  # تم استيراد مكتبة time لقياس زمن العمليات
 from highlighting import normalize_sentence, generate_distinct_colors, highlight_text
 from langchain_utils import extract_key_info, generate_summary, translate_to_arabic, match_summary_with_article
-from scrapegraphai.graphs import SmartScraperGraph
-from concurrent.futures import ThreadPoolExecutor  # لاستدعاء الخيوط المتعددة
-import os  # لاستخدام عدد الأنوية المتاحة
-import re  # لاستخدام التعبيرات المنتظمة لتنظيف النص
+from concurrent.futures import ThreadPoolExecutor
+import os
+import re
+import requests
+from bs4 import BeautifulSoup
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-# Initialize Flask app
 app = Flask(__name__)
 
-# تحديد عدد الأنوية المتاحة في النظام بشكل تلقائي
-max_workers = os.cpu_count() * 2  # مضاعفة عدد الأنوية للحصول على عدد أكبر من العمال
+max_workers = os.cpu_count() * 2
 
+# Function to use Extractor API to clean the text and split it into smaller chunks if it's too long
+def get_documents_from_web(url):
+    api_key = "25ed2d37fd3cd193d679e28dab9bf23ec0e3bd06"
+    extractor_url = f"https://extractorapi.com/api/v1/extractor/?apikey={api_key}&url={url}"
 
-# دالة لتنظيف المقالة من الإعلانات والرعاية والروابط الخارجية
+    response = requests.get(extractor_url)
+
+    if response.status_code == 200:
+        data = response.json()
+        document_text = data.get("text", "")
+    else:
+        print(f"Failed to fetch the webpage: {response.status_code}")
+        return ""
+
+    soup = BeautifulSoup(document_text, "html.parser")
+    cleaned_text = soup.get_text()
+
+    cleaned_text = re.sub(r'[^\w\s.,!?؛،]', '', cleaned_text)
+
+    # Split the text into smaller chunks if it's too long using RecursiveCharacterTextSplitter
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=50)
+    docs = splitter.split_text(cleaned_text)
+
+    # Combine the chunks together into one text since we don't need to process each chunk separately
+    full_text = "\n\n".join(docs)
+
+    return full_text
+
+# Function to remove unwanted content such as sponsored sections, ads, and external links
 def remove_unwanted_content(text):
-    # قائمة التعبيرات المنتظمة لإزالة الفقرات غير المرغوبة
     unwanted_patterns = [
-        r'\bSponsored\b',  # حذف الفقرات التي تحتوي على كلمة "Sponsored"
-        r'Advertisement',  # حذف الفقرات التي تحتوي على "Advertisement"
-        r'https?://[^\s]+',  # حذف الروابط الخارجية
+        r'\bSponsored\b',
+        r'Advertisement',
+        r'https?://[^\s]+',
     ]
 
-    # تطبيق الفلترة باستخدام التعبيرات المنتظمة
     for pattern in unwanted_patterns:
         text = re.sub(pattern, '', text, flags=re.IGNORECASE)
 
     return text
 
-
-# معالجة المقالة أو استخدام SmartScraperGraph مع الخيوط المتعددة
+# Function to process input, whether it's a URL (using Extractor API) or plain text
 def process_input(input_data: str, input_type: str) -> tuple:
-    if input_type == "smart_scraper":
-        # إعداد SmartScraperGraph
-        graph_config = {
-            "llm": {
-                "api_key": "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",
-                # استبدل بمفتاح API الخاص بك
-                "model": "openai/gpt-4o-mini",
-            },
-            "verbose": False,
-            "headless": True,
-        }
-
-        # استخدم SmartScraperGraph لاستخراج المعلومات
-        smart_scraper_graph = SmartScraperGraph(
-            prompt="""Extract the **Title** and the **Content** of the article. 
-            Ignore metadata like author, date, and other unnecessary information.""",
-            source=input_data,  # URL المدخل من المستخدم
-            config=graph_config
-        )
-
-        try:
-            start_time = time.time()  # قياس زمن تشغيل SmartScraperGraph
-            result = smart_scraper_graph.run()
-            print(f"Time taken for SmartScraperGraph: {time.time() - start_time} seconds")
-
-            if result and "Content" in result:
-                extracted_text = result["Content"]  # استخراج المحتوى كـنص
-                title = result.get("Title", "")  # استخراج العنوان إذا كان متاحاً
-                extracted_text = f"{title}\n\n{extracted_text}"  # دمج العنوان والمحتوى كنص مع سطر جديد بينهما
-            else:
-                extracted_text = ""  # إذا لم يتم العثور على محتوى
-
-        except Exception as e:
-            print(f"Error with SmartScraperGraph: {e}")
-            extracted_text = ""  # Handle any errors from the scraper gracefully
-
+    if input_type == "url":
+        extracted_text = get_documents_from_web(input_data)
     else:
-        # إذا كان المدخل نصًا، نستخدمه مباشرة
         extracted_text = input_data
 
-    # إزالة الفقرات غير المرغوبة من النص
     cleaned_text = remove_unwanted_content(extracted_text)
 
-    # التأكد من أن النص المستخرج أو المدخل ليس فارغًا
     if not cleaned_text.strip():
         raise ValueError("The extracted text or article content is empty after cleaning. Please provide a valid input.")
 
-    # تنفيذ المهام المعقدة بشكل متوازي باستخدام ThreadPoolExecutor مع max_workers
+    # Execute tasks in parallel using ThreadPoolExecutor with max_workers
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # إرسال المهام بشكل متوازي للتنفيذ
         key_info_future = executor.submit(extract_key_info, cleaned_text)
         summary_future = executor.submit(generate_summary, cleaned_text, key_info_future.result())
-
-        # تشغيل الترجمة والمطابقة بالتوازي مع توليد الملخص
         arabic_summary_future = executor.submit(translate_to_arabic, summary_future.result())
         match_sentences_future = executor.submit(match_summary_with_article, cleaned_text, summary_future.result())
 
-        # استرجاع النتائج بعد انتهاء المهام
         key_info = key_info_future.result()
         summary = summary_future.result()
         arabic_summary = arabic_summary_future.result()
         matched_sentences = match_sentences_future.result()
 
-    # تعديل النصوص لتصبح متوافقة مع HTML
     arabic_summary = arabic_summary.replace('\n', '<br>')
     summary = summary.replace('\n', '<br>')
 
-    # تمييز المقالة والخلاصة
     highlighted_summary, highlighted_article = highlight_summary_and_article(cleaned_text, summary, matched_sentences)
 
     return arabic_summary, summary, cleaned_text, matched_sentences
 
-
-# تمييز المقالة والخلاصة
+# Function to highlight matching sentences in both the summary and article
 def highlight_summary_and_article(article, summary, matched_sentences):
     try:
         parsed_sentences = json.loads(matched_sentences) if isinstance(matched_sentences, str) else matched_sentences
@@ -129,28 +108,22 @@ def highlight_summary_and_article(article, summary, matched_sentences):
     except Exception as e:
         return summary, article
 
-
-# عرض الواجهة
+# Route to handle the form submission and display the results
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        input_type = request.form.get('input_type')  # تحديد نوع المدخل (url, text, smart_scraper)
-        input_data = request.form.get('article') if input_type != "smart_scraper" else request.form.get('article_url')
+        input_type = request.form.get('input_type')
+        input_data = request.form.get('article') if input_type == "text" else request.form.get('article_url')
 
         if input_data:
             try:
-                # معالجة المدخل النصي أو URL
                 arabic_summary, summary, article, matched_sentences = process_input(input_data, input_type)
 
-                # تعديل النص لإضافة سطر جديد بشكل صحيح في HTML
                 arabic_summary = arabic_summary.replace('\n', '<br>')
                 summary = summary.replace('\n', '<br>')
 
-                # تمييز المقالة والخلاصة
-                highlighted_summary, highlighted_article = highlight_summary_and_article(article, summary,
-                                                                                         matched_sentences)
+                highlighted_summary, highlighted_article = highlight_summary_and_article(article, summary, matched_sentences)
 
-                # عرض النتائج باستخدام |safe في قالب HTML
                 return render_template('result.html', arabic_summary=arabic_summary, summary=summary,
                                        highlighted_article=highlighted_article, highlighted_summary=highlighted_summary)
             except ValueError as e:
@@ -158,7 +131,6 @@ def index():
 
     return render_template('form.html')
 
-
-# تشغيل التطبيق
+# Start the Flask app
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
