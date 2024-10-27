@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 import re  # To clean text using regular expressions
 from langchain_community.chat_models import ChatOpenAI
 from langchain_core.prompts.chat import ChatPromptTemplate, HumanMessagePromptTemplate
@@ -11,9 +13,10 @@ import os
 import json
 from langsmith import traceable
 
-# Setting up OpenAI API key
-os.environ["OPENAI_API_KEY"] = "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"
-os.environ["LANGCHAIN_API_KEY"] = "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"
+
+# Setting up API keys using environment variables
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_PROJECT"] = "Nada_2"
 
