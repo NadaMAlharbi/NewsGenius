@@ -11,14 +11,11 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA
 import os
 import json
-from langsmith import traceable
 
 
 # Setting up API keys using environment variables
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
-os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
-os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_PROJECT"] = "Nada_2"
+
 
 # Initialize LLM once for reuse
 llm = ChatOpenAI(temperature=0, model_name="gpt-4o-mini")
@@ -30,7 +27,7 @@ def create_vectorstore(text: str) -> FAISS:
     embeddings = OpenAIEmbeddings()
     return FAISS.from_texts(texts, embeddings)
 
-@traceable
+
 # Function to extract key information from the article
 def extract_key_info(article: str) -> dict:
     vectorstore = create_vectorstore(article)
@@ -50,7 +47,7 @@ def extract_key_info(article: str) -> dict:
 
     return {question: qa_chain.run(question) for question in questions}
 
-@traceable
+
 # Function to generate a structured summary from the article and key information
 def generate_summary(article: str, key_info: dict) -> str:
     prompt = ChatPromptTemplate.from_messages([
@@ -85,7 +82,7 @@ The summary should be natural and flowing without using bullet points or headers
     chain = LLMChain(llm=llm_s, prompt=prompt)
     return chain.run(article=article, key_info=str(key_info))
 
-@traceable
+
 # Function to translate text to Arabic
 def translate_to_arabic(text: str) -> str:
     prompt_s = ChatPromptTemplate.from_messages([
@@ -123,7 +120,7 @@ def clean_json_output(output):
         return json_match.group(0)  # Extract the JSON array
     return output
 
-@traceable
+
 # Function to match summary sentences with corresponding article sentences
 def match_summary_with_article(article: str, summary: str) -> str:
     prompt = ChatPromptTemplate.from_messages([
