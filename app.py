@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 from flask import Flask, render_template, request
 import json
 from highlighting import normalize_sentence, generate_distinct_colors, highlight_text
@@ -9,13 +10,16 @@ import requests
 from bs4 import BeautifulSoup
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
+# Load environment variables
+load_dotenv()
+
 app = Flask(__name__)
 
 max_workers = os.cpu_count() * 2
 
 # Function to use Extractor API to clean the text and split it into smaller chunks if it's too long
 def get_documents_from_web(url):
-    api_key = "25ed2d37fd3cd193d679e28dab9bf23ec0e3bd06"
+    api_key = os.getenv("EXTRACTOR_API_KEY")
     extractor_url = f"https://extractorapi.com/api/v1/extractor/?apikey={api_key}&url={url}"
 
     response = requests.get(extractor_url)
@@ -133,4 +137,4 @@ def index():
 
 # Start the Flask app
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5002)
