@@ -21,14 +21,6 @@ To run the application locally, follow these steps:
 ### Prerequisites
 
 - Python 3.9+
-- pip
-
-### Clone the Repository
-
-```bash
-git clone https://github.com/NadaMAlharbi/NewsGenius.git
-cd NewsGenius
-```
 
 ### Install Dependencies
 
@@ -46,7 +38,7 @@ Run the Flask application:
 python app.py
 ```
 
-The application will be accessible at `http://localhost:5002`.
+The application will be accessible at `http://localhost:5003`.
 
 ## Usage
 
