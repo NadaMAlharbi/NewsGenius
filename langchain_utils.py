@@ -64,9 +64,9 @@ Please provide a structured summary of this article, following these strict guid
 1. **Start with what was done**: Begin the summary by explaining what was developed, achieved, issued, or discovered (e.g., "The company developed a new AI system").
 2. **State the goal**: In the second sentence, explicitly mention the goal or purpose behind this action (e.g., "The goal of this development is to improve customer service").
 3. **Describe the features**: Highlight key features, advantages, or disadvantages, and ensure that any important numbers are enclosed in parentheses (e.g., "The new system reduced processing time by (30%)").
-4. **Future plans**: Conclude with future expectations or anticipated actions, such as "It is expected" or "من المتوقع". Do not include specific dates unless explicitly mentioned in the article. Focus on general future developments.
+4. **Future plans**: Conclude with future expectations or anticipated actions, such as "It is expected" . Do not include specific dates unless explicitly mentioned in the article. Focus on general future developments.
 
-Ensure that proper nouns or brand names are transliterated into Arabic and their English name is placed in parentheses for the first occurrence (e.g., جوجل(Google)).
+Ensure that proper nouns or brand names are transliterated into Arabic and their English name is placed in parentheses for the first occurrence (Google).
 
 Format your response as follows:
 
