@@ -2,8 +2,6 @@
 
 **NewsGenius** is an AI-powered web application designed to analyze news articles by providing capabilities to **summarize**, **translate**, and **highlight key information**. Leveraging advanced language models, the system processes large volumes of content efficiently, delivering **quick insights** and facilitating **easy navigation** through critical information.
 
-### Deployed Application:
-[NewsGenius on Railway](https://newsgenius.up.railway.app)
 
 ## Features
 
@@ -42,7 +40,7 @@ The application will be accessible at `http://localhost:5003`.
 
 ## Usage
 
-1. Open the deployed application at [NewsGenius on Railway](https://newsgenius.up.railway.app).
+1. Open the application: Access it in your web browser at the specified URL (e.g., http://localhost:5003).
 2. Enter an English URL or article text for analysis.
 3. Click "Analyze" (login required).
 4. View the summaries in Arabic and English, with highlighted sections.
